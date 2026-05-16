@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Cây Cảnh Minh Quân{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Manrope', 'sans-serif'], display: ['Fraunces', 'serif'] },
+          colors: {
+            brand: {50:'#eefbf4',100:'#daf4e5',600:'#1f8b5f',700:'#176746',900:'#0d2a1d'}
+          },
+          boxShadow: {
+            soft: '0 10px 30px rgba(13,42,29,.08)',
+            card: '0 18px 45px rgba(13,42,29,.12)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background:
+        radial-gradient(circle at 10% -8%, rgba(253, 186, 116, .28), transparent 30%),
+        radial-gradient(circle at 90% -12%, rgba(16, 185, 129, .22), transparent 34%),
+        linear-gradient(180deg, #f9fcfa 0%, #f0f7f2 50%, #ebf3ed 100%);
+    }
+    input[type="text"], input[type="password"], input[type="email"], input[type="search"], input[type="number"], input[type="date"], input[type="datetime-local"], select, textarea {
+      width: 100%; border: 1px solid #cfe2d6; border-radius: .75rem; padding: .65rem .85rem; background: #fff;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #1f8b5f; box-shadow: 0 0 0 4px rgba(31,139,95,.14); }
+  </style>
+</head>
+<body class="min-h-screen font-sans text-slate-800">
+  <header class="sticky top-0 z-50 border-b border-white/20 bg-brand-900/85 backdrop-blur-xl">
+    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+      <a href="/" class="font-display text-xl text-amber-100"><i class="fas fa-leaf mr-2"></i>Cửa hàng Cây Cảnh</a>
+      <button id="menuBtn" class="md:hidden rounded-lg border border-white/30 px-3 py-2 text-white"><i class="fas fa-bars"></i></button>
+      <nav class="hidden items-center gap-1 text-sm font-semibold md:flex">
+        <a class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white" href="/">Home</a>
+        <a class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white" href="{% url 'product_list' %}">Shop</a>
+        <a class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white" href="{% url 'producer_list' %}">Producers</a>
+        <a class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white" href="{% url 'content_list' %}">Content</a>
+        {% if user.is_authenticated %}
+        <a class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white" href="{% url 'cart' %}"><i class="fas fa-shopping-cart mr-1"></i>Cart</a>
+        <a class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white" href="{% url 'order_list' %}">Orders</a>
+        <div class="relative">
+          <button type="button" data-dropdown-toggle="toolsMenu" class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white">Tools <i class="fas fa-chevron-down ml-1 text-xs"></i></button>
+          <div id="toolsMenu" class="hidden absolute right-0 z-50 mt-1 w-52 rounded-xl border border-emerald-100 bg-white p-2 text-slate-700 shadow-card">
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'ai_insights' %}">AI Insights</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'for_you_recommendations' %}">For You</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'sustainability_report' %}">Sustainability</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'checkout' %}">Checkout</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'recurring_order_list' %}">Recurring Orders</a>
+            {% if user.role == "admin" %}
+            <div class="my-1 border-t border-emerald-100"></div>
+            <p class="px-3 pt-1 text-xs font-bold uppercase tracking-wider text-slate-500">Admin Tools</p>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'manager_ai_control_center' %}">AI Management</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'financial_reports' %}">Financial Reports</a>
+            {% endif %}
+          </div>
+        </div>
+        {% if user.role == "producer" or user.role == "admin" %}
+        <div class="relative">
+          <button type="button" data-dropdown-toggle="producerMenu" class="rounded-lg px-3 py-2 text-amber-100 hover:bg-white/10 hover:text-white">Producer <i class="fas fa-chevron-down ml-1 text-xs"></i></button>
+          <div id="producerMenu" class="hidden absolute right-0 z-50 mt-1 w-56 rounded-xl border border-emerald-100 bg-white p-2 text-slate-700 shadow-card">
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'producer_manage_products' %}">Quản lý cây cảnh</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'producer_add_product' %}">Thêm cây cảnh</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'producer_quality_inspection' %}">Quality Inspection</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'producer_order_list' %}">Producer Orders</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'producer_review_moderation' %}">Review Moderation</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'producer_content_list' %}">Manage Content</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'producer_content_create' %}">Create Content</a>
+            <a class="block rounded-lg px-3 py-2 text-sm hover:bg-emerald-50" href="{% url 'producer_balance' %}">Balance</a>
+          </div>
+        </div>
+        {% endif %}
+        <a class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white" href="{% url 'profile' %}">{{ user.username }}</a>
+        <a class="rounded-xl bg-white/15 px-3 py-2 text-white hover:bg-white/25" href="{% url 'logout' %}">Logout</a>
+        {% else %}
+        <a class="rounded-lg px-3 py-2 text-white/90 hover:bg-white/10 hover:text-white" href="{% url 'login' %}">Login</a>
+        <a class="rounded-xl bg-white/15 px-3 py-2 text-white hover:bg-white/25" href="{% url 'register' %}">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+    <nav id="mobileNav" class="hidden border-t border-white/10 px-4 pb-4 md:hidden">
+      <div class="mt-3 grid gap-1 text-sm font-semibold text-white">
+        <p class="px-3 pt-1 text-xs uppercase tracking-wider text-emerald-200/90">Main</p>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="/">Home</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'product_list' %}">Shop</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_list' %}">Producers</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'content_list' %}">Content</a>
+        {% if user.is_authenticated %}
+        <p class="px-3 pt-2 text-xs uppercase tracking-wider text-emerald-200/90">Tools</p>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'ai_insights' %}">AI Insights</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'for_you_recommendations' %}">For You</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'sustainability_report' %}">Sustainability</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'cart' %}">Cart</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'checkout' %}">Checkout</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'order_list' %}">Orders</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'recurring_order_list' %}">Recurring Orders</a>
+        {% if user.role == "admin" %}
+        <p class="px-3 pt-2 text-xs uppercase tracking-wider text-emerald-200/90">Admin Tools</p>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'manager_ai_control_center' %}">AI Management</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'financial_reports' %}">Financial Reports</a>
+        {% endif %}
+        {% if user.role == "producer" or user.role == "admin" %}
+        <p class="px-3 pt-2 text-xs uppercase tracking-wider text-emerald-200/90">Producer</p>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_manage_products' %}">Quản lý cây cảnh</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_add_product' %}">Thêm cây cảnh</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_quality_inspection' %}">Quality Inspection</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_order_list' %}">Producer Orders</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_review_moderation' %}">Review Moderation</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_content_list' %}">Manage Content</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_content_create' %}">Create Content</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'producer_balance' %}">Balance</a>
+        {% endif %}
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'profile' %}">Profile</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'logout' %}">Logout</a>
+        {% else %}
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'login' %}">Login</a>
+        <a class="rounded-lg px-3 py-2 hover:bg-white/10" href="{% url 'register' %}">Register</a>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6">
+    {% if messages %}
+      {% for message in messages %}
+      <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900 shadow-soft">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mt-16 bg-gradient-to-r from-brand-900 to-brand-700 py-8 text-center text-sm text-emerald-50">
+    <p>&copy; 2026 Bristol Regional Food Network. All rights reserved.</p>
+    <p>Connecting local producers with consumers in Bristol.</p>
+  </footer>
+
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileNav = document.getElementById('mobileNav');
+    if (menuBtn && mobileNav) menuBtn.addEventListener('click', () => mobileNav.classList.toggle('hidden'));
+
+    const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
+    const closeAllDropdowns = () => {
+      dropdownButtons.forEach((btn) => {
+        const menuId = btn.getAttribute('data-dropdown-toggle');
+        const menu = document.getElementById(menuId);
+        if (menu) menu.classList.add('hidden');
+      });
+    };
+
+    dropdownButtons.forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const menuId = btn.getAttribute('data-dropdown-toggle');
+        const menu = document.getElementById(menuId);
+        if (!menu) return;
+        const wasHidden = menu.classList.contains('hidden');
+        closeAllDropdowns();
+        if (wasHidden) menu.classList.remove('hidden');
+      });
+    });
+
+    document.addEventListener('click', () => closeAllDropdowns());
+  </script>
+</body>
+</html>
