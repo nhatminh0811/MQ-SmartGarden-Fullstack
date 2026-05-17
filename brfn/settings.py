@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from urllib.parse import parse_qs, urlparse
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -91,11 +92,45 @@ WSGI_APPLICATION = "brfn.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+def parse_database_url(database_url: str):
+    parsed = urlparse(database_url)
+    scheme = parsed.scheme
+    if scheme in {"postgres", "postgresql"}:
+        engine = "django.db.backends.postgresql"
+    elif scheme in {"mysql"}:
+        engine = "django.db.backends.mysql"
+    elif scheme in {"sqlite"}:
+        engine = "django.db.backends.sqlite3"
+    else:
+        raise ValueError(f"Unsupported database scheme: {scheme}")
+
+    if engine == "django.db.backends.sqlite3":
+        db_path = parsed.path
+        if db_path.startswith("/"):
+            db_path = db_path[1:]
+        return {
+            "ENGINE": engine,
+            "NAME": BASE_DIR / db_path,
+        }
+
+    query_params = parse_qs(parsed.query)
+    options = {}
+    if "sslmode" in query_params:
+        options["sslmode"] = query_params["sslmode"][-1]
+
+    return {
+        "ENGINE": engine,
+        "NAME": parsed.path[1:],
+        "USER": parsed.username or "",
+        "PASSWORD": parsed.password or "",
+        "HOST": parsed.hostname or "",
+        "PORT": str(parsed.port or ""),
+        "OPTIONS": options,
     }
+
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db.sqlite3")
+DATABASES = {
+    "default": parse_database_url(DATABASE_URL)
 }
 
 
