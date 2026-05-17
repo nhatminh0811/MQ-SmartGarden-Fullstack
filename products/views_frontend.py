@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.db import transaction
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.db.models import Q, Count, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -333,6 +334,7 @@ def product_detail(request, pk):
 
 
 def login_view(request):
+    next_url = request.GET.get("next") or request.POST.get("next") or ""
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -344,11 +346,13 @@ def login_view(request):
             else:
                 request.session.set_expiry(0)
             log_security_event(request, "login_success", detail="User authenticated successfully.", user=user)
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
             return redirect("home")
         log_security_event(request, "login_failed", detail="Invalid username or password.")
     else:
         form = AuthenticationForm()
-    return render(request, "pages/account/login.html", {"form": form})
+    return render(request, "pages/account/login.html", {"form": form, "next": next_url})
 
 
 def register_view(request):
